@@ -63,13 +63,13 @@ void pinSetUp()
 
 	/**
 	 * Port C:
-	 * PC0, PC1 analog IN, no pull up R
-	 * PC3 digital software serial Rx						XXX pe placa noua PC2
-	 * PC4 digital software serial Tx						XXX pe placa noua PC3
-	 * PC4, PC5 digital IN, delete EEPROM and Config mode	XXX pe placa noua
+	 * PC0, PC1, PC4 analog IN, no pull up R
+	 * PC3 digital software serial Rx
+	 * PC4 digital software serial Tx
+	 * PC5 digital IN, delete EEPROM and Config mode
 	 */
 	//DDRC |= (1 << DDC5) | (1 << DDC4);
-	DDRC &= ~((1 << DDC0) | (1 << DDC1) |  (1 << DDC5));//(1 << DDC2) | | (1 << DDC3));
+	DDRC &= ~((1 << DDC0) | (1 << DDC1) | (1 << DDC4) |  (1 << DDC5));//(1 << DDC2) | | (1 << DDC3));
 
 	PORTC |=  (1 << PORTC5); // internal Pull UP switch on
 	//DDRC =  0b00100000;
