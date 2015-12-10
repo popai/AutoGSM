@@ -49,7 +49,8 @@ const prog_char TMP1[] PROGMEM = "TMP1";		//adresa 18*22
 const prog_char TMP2[] PROGMEM = "TMP2";		//adresa 18*23
 const prog_char PASS[] PROGMEM = "PASS";		//adresa 18*24
 const prog_char LOGIN[] PROGMEM = "LOGIN";		//adresa
-const prog_char DEL[] PROGMEM = "DEL";		//adresa
+const prog_char DEL[] PROGMEM = "DEL";			//adresa
+const prog_char DELEP[] PROGMEM = "DELEP";		//adresa
 const prog_char STARE_IN[] PROGMEM = "STARE IN";	//predefined command
 const prog_char STARE_OUT[] PROGMEM = "STARE OUT";	//predefined command
 const prog_char STARE_TMP[] PROGMEM = "STARE TMP";	//predefined command
@@ -208,6 +209,8 @@ void Config(char *nrtel, char *inmsg)
 			}
 
 		}
+		else if(strstr_P(inmsg, DELEP) != 0)
+			 DellEprom();
 		else
 		{
 			CfgCmd(inmsg);
@@ -649,7 +652,14 @@ void static StareIN(char *nrtel)
 	char mesage[96];
 	char buffer[18];
 	*mesage = 0x00;
-//if (digitalRead(inD1) == LOW && in1)
+
+	float Vo = 0;
+
+	Vo = 4 * analogRead(PINC4);
+	sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
+	gsm.SendSMS(nrtel, mesage);
+
+	//if (digitalRead(inD1) == LOW && in1)
 	if ((PINB & (1 << PINB1)) == 0)
 	{
 		ReadEprom(buffer, 18 * 1);
@@ -920,6 +930,21 @@ void VerificIN()
 		}
 		in3 = true;
 	}
+
+	float Vo = 0;
+	Vo = 4 * analogRead(PINC4);
+	if (Vo >= 15)
+	{
+		sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
+		gsm.SendSMS(number, buffer);
+	}
+	if (Vo <= 10.8)
+	{
+		sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
+		gsm.SendSMS(number, buffer);
+
+	}
+
 
 }
 
