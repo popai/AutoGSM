@@ -82,13 +82,6 @@ void setup()
 	if(nr_pfonnr == 0)
 		PORTB |= (1 << PINB5);
 
-	 //if (digitalRead(jp2) == LOW)
-	 if ((PINC & (1 << PINC4)) == 0)
-	 {
-	 delEEPROM = true;
-	 DellEprom();
-	 }
-
 	//if (digitalRead(jp3) == LOW)
 	if ((PINC & (1 << PINC5)) == 0)
 	{

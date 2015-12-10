@@ -29,8 +29,8 @@
 //		           VCC  7|    |22  GND
 //		           GND  8|    |21  AREF
 //	XTAL1		   PB6  9|    |20  AVCC
-//  XTAL2          PB7 10|    |19  PB5 (D 13)		useLED
-//outD4 PWM+ (D 5) PD5 11|    |18  PB4 (D 12)		errLED
+//  XTAL2          PB7 10|    |19  PB5 (D 13)		error LED
+//outD4 PWM+ (D 5) PD5 11|    |18  PB4 (D 12)		user  LED
 //outD5 PWM+ (D 6) PD6 12|    |17  PB3 (D 11) PWM	inD4
 //outD6      (D 7) PD7 13|    |16  PB2 (D 10) PWM	inD3
 //GSM POWER  (D 8) PB0 14|    |15  PB1 (D 9 ) PWM	inD2
