@@ -142,7 +142,7 @@ int8_t CfgCmd(char *inbuffer)
 void Config(char *nrtel, char *inmsg)
 {
 	char buffer[64];
-	int adr = 18;
+	//int adr = 18;
 	if ((strlen(nrtel) != 0) && (strlen(inmsg) != 0))
 	{
 		//TODO mtetod to delete number from pozition
@@ -153,7 +153,7 @@ void Config(char *nrtel, char *inmsg)
 			int8_t nr_pfonnr = 1;
 			if (nr_pfonnr < 7)
 			{
-				byte error = gsm.WritePhoneNumber(nr_pfonnr, nrtel);
+				int error = gsm.WritePhoneNumber(nr_pfonnr, nrtel);
 				if (error != 0)
 				{
 					sprintf_P(buffer,
@@ -168,14 +168,14 @@ void Config(char *nrtel, char *inmsg)
 				}
 				else
 				{
-					strcpy_P(buffer, PSTR("Writing error"));
+					strcpy_P(buffer, PSTR("Eroare"));
 					Serial.println(buffer);
 					gsm.SendSMS(nrtel, buffer);
 				}
 			}
 			else
 			{
-				strcpy_P(buffer, PSTR("No free slot"));
+				strcpy_P(buffer, PSTR("Slot ocupat"));
 				gsm.SendSMS(nrtel, buffer);
 			}
 
@@ -185,7 +185,7 @@ void Config(char *nrtel, char *inmsg)
 		else if (strstr_P(inmsg, DEL) != 0)
 		{
 			byte i = 1;
-			byte error = 0;
+			int error = 0;
 			for (i = 1; i < 7; i++)
 				if (gsm.ComparePhoneNumber(i, nrtel))
 					break;
@@ -193,7 +193,8 @@ void Config(char *nrtel, char *inmsg)
 				error = gsm.DelPhoneNumber(i);
 			if (error != 0)
 			{
-				sprintf_P(buffer, " %s: %d %s", PSTR("Phone number position "), i, PSTR(" deleted"));
+				sprintf_P(buffer, " %s: %d %s", PSTR("Phone number position "),
+						i, PSTR(" deleted"));
 				//Serial.print("Phone number position ");
 				//Serial.print(i);
 				//Serial.println(" deleted");
@@ -209,8 +210,8 @@ void Config(char *nrtel, char *inmsg)
 			}
 
 		}
-		else if(strstr_P(inmsg, DELEP) != 0)
-			 DellEprom();
+		else if (strstr_P(inmsg, DELEP) != 0)
+			DellEprom();
 		else
 		{
 			CfgCmd(inmsg);
@@ -468,7 +469,7 @@ void Comand(char *nrtel, char *inmsg)
 	if (strcasecmp_P(inmsg, DEL) == 0)
 	{
 		byte i = 1;
-		byte error = 0;
+		int error = 0;
 		for (i = 1; i < 7; i++)
 			if (gsm.ComparePhoneNumber(i, nrtel))
 				break;
@@ -476,15 +477,16 @@ void Comand(char *nrtel, char *inmsg)
 			error = gsm.DelPhoneNumber(i);
 		if (error != 0)
 		{
-			char tmpbuffer[64];
-			sprintf_P(tmpbuffer, " %s: %d %s", PSTR("Phone number position "), i, PSTR(" deleted"));
+			char tmpbuffer[56];
+			sprintf_P(tmpbuffer, " %s: %1d %s", PSTR("Phone number position "),
+					i, PSTR(" deleted"));
 			//Serial.print("Number position ");
 			//Serial.print(i);
 			//Serial.println(" deleted");
-			Serial.println(buffer);
+			Serial.println(tmpbuffer);
 
 			strcpy_P(buffer, PSTR("Sters"));
-			gsm.SendSMS(nrtel, tmpbuffer);
+			gsm.SendSMS(nrtel, buffer);
 		}
 		else
 		{
@@ -509,7 +511,7 @@ void Comand(char *nrtel, char *inmsg)
  */
 void static StareOUT(char *nrtel)
 {
-	char mesage[256];
+	char mesage[128];
 	char buffer[18];
 	//int i = 108;
 	*mesage = 0x00;
@@ -649,90 +651,71 @@ void static StareOUT(char *nrtel)
 void static StareIN(char *nrtel)
 {
 
-	char mesage[96];
+	char mesage[76];
 	char buffer[18];
 	*mesage = 0x00;
 
 	float Vo = 0;
 
 	Vo = 4 * analogRead(PINC4);
-	sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
-	gsm.SendSMS(nrtel, mesage);
-
+	sprintf_P(mesage, " %s: %2f.2 %s", PSTR("U = "), Vo, PSTR("\n"));
+	//gsm.SendSMS(nrtel, mesage);
+	//strcat(mesage, buffer);
 	//if (digitalRead(inD1) == LOW && in1)
-	if ((PINB & (1 << PINB1)) == 0)
-	{
-		ReadEprom(buffer, 18 * 1);
-		if (strlen(buffer) != 0)
+	ReadEprom(buffer, 18 * 1);
+	if (strlen(buffer) != 0)
+		if ((PINB & (1 << PINB1)) == 0)
 		{
-			strcat(buffer, " on");
-			strcat(mesage, buffer);
-			strcat_P(mesage, PSTR("\r\n"));
-		}
-
-	}
-	else
-	{
-		ReadEprom(buffer, 18 * 1);
-		if (strlen(buffer) != 0)
-		{
-			strcat(buffer, " off");
-			strcat(mesage, buffer);
-			strcat_P(mesage, PSTR("\r\n"));
+			{
+				strcat(mesage, buffer);
+				strcat_P(mesage, PSTR(" on"));
+				strcat_P(mesage, PSTR("\r\n"));
+			}
 
 		}
-
-	}
+		else
+		{
+			strcat(mesage, buffer);
+			strcat_P(mesage, PSTR(" off"));
+			strcat_P(mesage, PSTR("\r\n"));
+		}
 
 //if (digitalRead(inD2) == LOW && in2)
-	if ((PINB & (1 << PINB2)) == 0)
-	{
-		ReadEprom(buffer, 18 * 2);
-		if (strlen(buffer) != 0)
+	ReadEprom(buffer, 18 * 2);
+	if (strlen(buffer) != 0)
+		if ((PINB & (1 << PINB2)) == 0)
 		{
-			strcat(buffer, " on");
+			{
+				strcat(mesage, buffer);
+				strcat_P(mesage, PSTR(" on"));
+				strcat_P(mesage, PSTR("\r\n"));
+			}
+
+		}
+		else
+		{
 			strcat(mesage, buffer);
+			strcat_P(mesage, PSTR(" off"));
 			strcat_P(mesage, PSTR("\r\n"));
 		}
 
-	}
-	else
-	{
-		ReadEprom(buffer, 18 * 2);
-		if (strlen(buffer) != 0)
+	ReadEprom(buffer, 18 * 3);
+	if (strlen(buffer) != 0)
+		if ((PINB & (1 << PINB3)) == 0)
 		{
-			strcat(buffer, " off");
-			strcat(mesage, buffer);
-			strcat_P(mesage, PSTR("\r\n"));
+			{
+				strcat(mesage, buffer);
+				strcat_P(mesage, PSTR(" on"));
+				strcat_P(mesage, PSTR("\r\n"));
+			}
 
 		}
-
-	}
-
-//if (digitalRead(inD3) == LOW && in3)
-	if ((PINB & (1 << PINB3)) == 0)
-	{
-		ReadEprom(buffer, 18 * 3);
-		if (strlen(buffer) != 0)
+		else
 		{
-			strcat(buffer, " on");
 			strcat(mesage, buffer);
-			strcat_P(mesage, PSTR("\r\n"));
+			strcat_P(mesage, PSTR(" off"));
+			//strcat_P(mesage, PSTR("\r\n"));
 		}
-
-	}
-	else
-	{
-		ReadEprom(buffer, 18 * 3);
-		if (strlen(buffer) != 0)
-		{
-			strcat(buffer, " off");
-			strcat(mesage, buffer);
-			//strcat_P(mesage, PSTR("\n\r"));
-
-		}
-
-	}
 	if (strlen(mesage) != 0)
 		gsm.SendSMS(nrtel, mesage);
 
@@ -766,9 +749,10 @@ float Thermistor(int Tpin)
  */
 static void StareTMP(char *nrtel)
 {
-	char mesage[96];
+	char mesage[56];
 	char buffer[18];
-	char tmpe[32];
+	char tmpe[26];
+	*tmpe = 0x00;
 	int tmp, tmp1, tmp2;
 	*mesage = 0x00;
 
@@ -782,8 +766,8 @@ static void StareTMP(char *nrtel)
 	ReadEprom(buffer, 18 * 22);
 	if (strlen(buffer) != 0)
 	{
-		sprintf(tmpe, " %s: %d %s", buffer, tmp, "C\r\n");
-		strcat(mesage, tmpe);
+		sprintf_P(mesage, " %s: %d %s", buffer, tmp, PSTR("C\r\n"));
+		//strcat(mesage, tmpe);
 	}
 
 	tmp = Thermistor(PINC1);
@@ -796,7 +780,7 @@ static void StareTMP(char *nrtel)
 	ReadEprom(buffer, 18 * 23);
 	if (strlen(buffer) != 0)
 	{
-		sprintf(tmpe, " %s: %d %s", buffer, tmp, "C\r\n");
+		sprintf_P(tmpe, " %s: %d %s", buffer, tmp, PSTR("C\r\n"));
 		strcat(mesage, tmpe);
 	}
 
@@ -813,10 +797,10 @@ static void StareTMP(char *nrtel)
 void VerificIN()
 {
 	//char mesage[80];
-	char number[20];
-	char buffer[32];
+	char number[18];
+	char buffer[24];
 	int error = 0;
-
+	*buffer = 0x00;
 	//if (digitalRead(inD1) == LOW && in1)
 	if ((PINB & (1 << PINB1)) == 0)
 	{
@@ -826,7 +810,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 1);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " on");
+				strcat_P(buffer, PSTR(" on"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -843,7 +827,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 1);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " off");
+				strcat_P(buffer, PSTR(" off"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -864,7 +848,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 2);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " on");
+				strcat_P(buffer, PSTR(" on"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -881,7 +865,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 2);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " off");
+				strcat_P(buffer, PSTR(" off"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -902,7 +886,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 3);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " on");
+				strcat_P(buffer, PSTR(" on"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -919,7 +903,7 @@ void VerificIN()
 			ReadEprom(buffer, 18 * 3);
 			if (strlen(buffer) != 0)
 			{
-				strcat(buffer, " off");
+				strcat_P(buffer, PSTR(" off"));
 				for (byte i = 1; i < 7; i++)
 				{
 					error = gsm.GetPhoneNumber(i, number);
@@ -935,16 +919,25 @@ void VerificIN()
 	Vo = 4 * analogRead(PINC4);
 	if (Vo >= 15)
 	{
-		sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
-		gsm.SendSMS(number, buffer);
+		sprintf_P(buffer, " %s: %2f.2", PSTR("Alerta"), Vo);
+		for (byte i = 1; i < 7; i++)
+		{
+			error = gsm.GetPhoneNumber(i, number);
+			if (error == 1)  //Find number in specified position
+				gsm.SendSMS(number, buffer);
+		}
+
 	}
 	if (Vo <= 10.8)
 	{
-		sprintf_P(buffer, " %s: %f %s", PSTR("Alerta"), Vo, PSTR("\n"));
-		gsm.SendSMS(number, buffer);
-
+		sprintf_P(buffer, " %s: %2f.2", PSTR("Alerta"), Vo);
+		for (byte i = 1; i < 7; i++)
+		{
+			error = gsm.GetPhoneNumber(i, number);
+			if (error == 1)  //Find number in specified position
+				gsm.SendSMS(number, buffer);
+		}
 	}
-
 
 }
 
@@ -954,7 +947,7 @@ void VerificIN()
  *
  * @param : no parameters
  * @return: no return
- */
+ *
 void SetPort()
 {
 	uint8_t pin_state = 0b00000000;
@@ -962,3 +955,4 @@ void SetPort()
 	//Serial.println(pin_state);
 	PORTD |= pin_state;
 }
+*/

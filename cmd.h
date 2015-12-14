@@ -17,6 +17,6 @@ void Config(char *nrtel, char *inmsg);
 void Comand(char *nrtel, char *inmsg);
 float Thermistor(int RawADC);
 void VerificIN();
-void SetPort();
+//void SetPort();
 
 #endif /* CMD_H_ */

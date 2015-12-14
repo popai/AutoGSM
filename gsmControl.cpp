@@ -35,7 +35,7 @@ void setup()
 
 	Serial.begin(115200);	//start hardwre serial
 	delay(100);
-	Serial.println("system startup");
+	Serial.println(F("system startup"));
 
 	//SetPort(); TODO
 
