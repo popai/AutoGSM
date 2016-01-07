@@ -66,7 +66,7 @@ void pinSetUp()
 	 * PC0, PC1, PC4 analog IN, no pull up R
 	 * PC2 digital software serial Rx
 	 * PC3 digital software serial Tx
-	 * PC5 digital IN, delete EEPROM and Config mode
+	 * PC5 digital IN, Config mode
 	 */
 	//DDRC |= (1 << DDC5) | (1 << DDC4);
 	DDRC &= ~((1 << DDC0) | (1 << DDC1) | (1 << DDC4) |  (1 << DDC5));//(1 << DDC2) | | (1 << DDC3));

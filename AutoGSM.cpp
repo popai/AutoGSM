@@ -6,7 +6,7 @@
  */
 
 #include "AutoGSM.h"
-#include <MyGSM.h>
+#include "lib/myGSM/MyGSM.h"
 #include <avr/eeprom.h>
 
 #include "cmd.h"
@@ -33,10 +33,11 @@ void setup()
 // Add your initialization code here
 	pinSetUp();			//set pins
 
-	Serial.begin(115200);	//start hardwre serial
+	Serial.begin(9600);	//start hardwre serial
 	delay(100);
 	Serial.println(F("system startup"));
-
+	//startup gsm module
+	gsm.TurnOn(9600);       //module power on
 	//SetPort();
 	eeprom_read_block(sms_rx, (int*) 486, 24);
 	if (strlen(sms_rx) == 0)
@@ -47,23 +48,15 @@ void setup()
 		strcpy_P(sms_rx, 0x00);
 	}
 
-	//startup gsm module
-	byte tri = 0;			//attempts number
+	//Check status
 	int error = 0;			//error from function
-	gsm.TurnOn(9600);       //module power on
-	while ((error != AT_RESP_OK) && (tri < 10)) //Check status //XXX de verificat metoda
-	{
-		error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-		//error = gsm.CheckRegistration();
-		//error=gsm.SendSMS("+40745183841","Modul ON");
-		++tri;
-	}
-	//if (error == REG_NOT_REGISTERED || error == REG_NO_RESPONSE)
+	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
 	if (error == AT_RESP_OK)
 	{
 		gsm.InitParam(PARAM_SET_1);		//configure the module
-		gsm.Echo(0); 				 	//enable/disable AT echo
+		gsm.Echo(0);		//enable/disable AT echo
 		Serial.println("GSM OK");
+		//error=gsm.SendSMS("+40745183841","Modul ON");
 	}
 	else
 	{
@@ -79,15 +72,13 @@ void setup()
 			++nr_pfonnr;
 	}
 	Serial.println(nr_pfonnr);
-	if (nr_pfonnr == 0)
-		PORTB |= (1 << PINB5);
 
-	//if (digitalRead(jp3) == LOW)
+	//if (nr_pfonnr == 0)
+	//PORTB |= (1 << PINB5);
+
+//if (digitalRead(jp3) == LOW)
 	if ((PINC & (1 << PINC5)) == 0)
-	{
 		config = true;
-	}
-
 }
 
 void loop()
@@ -134,7 +125,7 @@ void loop()
 		error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
 		if (error == AT_RESP_ERR_NO_RESP)
 			PORTB |= (1 << PINB5);
-
+		else PORTB &= ~(1 << PINB5);
 	}
 	else
 	{
@@ -152,9 +143,9 @@ void loop()
 			{
 				//write number on sim
 				uint8_t nr_pfonnr = 1;	//hold number of phone number on sim
+				char tmpnr[20];
 				for (byte i = 1; i < 7; i++)
 				{
-					char tmpnr[20];
 					error = gsm.GetPhoneNumber(i, tmpnr);
 					if (error == 1)  //Find number in specified position
 						++nr_pfonnr;
@@ -168,7 +159,8 @@ void loop()
 					if (error != 0)
 					{
 						sprintf_P(buffer,
-								PSTR("Number %s writed in Phone Book position %d"),
+								PSTR(
+										"Number %s writed in Phone Book position %d"),
 								number, nr_pfonnr);
 						Serial.println(buffer);
 						++nr_pfonnr;
@@ -195,20 +187,15 @@ void loop()
 		*sms_rx = 0x00;
 		id = 0;
 
-		byte tri = 0;
-		error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-		if (error == AT_RESP_ERR_NO_RESP)
-			PORTB |= (1 << PINB5);
-		while ((error != AT_RESP_OK) && (tri < 5))
-		{
-
-			error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-			++tri;
-		}
-		if (error)
-			PORTB &= ~(1 << PINB5);
-
 	}
+	//chip module up
+	//Serial.print("test\n");
+	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 2);
+	if (error == AT_RESP_ERR_NO_RESP)
+		PORTB |= (1 << PINB5);
+	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
+	if (error == AT_RESP_OK)
+		PORTB &= ~(1 << PINB5);
 
 	delay(50);
 }
@@ -227,7 +214,7 @@ int Check_SMS()
 	char str[200];
 	int pos_sms_rx = -1;  //Received SMS position
 	pos_sms_rx = gsm.IsSMSPresent(SMS_ALL);
-	//Serial.println(pos_sms_rx);
+//Serial.println(pos_sms_rx);
 	if (pos_sms_rx > 0)
 	{
 		//Read text/number/position of sms

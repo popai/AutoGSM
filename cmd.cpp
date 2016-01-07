@@ -8,7 +8,7 @@
 #include "Arduino.h"
 #include "cmd.h"
 #include "pinDef.h"
-#include <MyGSM.h>
+#include "lib/myGSM/MyGSM.h"
 
 //#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
@@ -141,8 +141,7 @@ int8_t CfgCmd(char *inbuffer)
  */
 void Config(char *nrtel, char *inmsg)
 {
-	char buffer[64];
-
+	char buffer[56];
 	//int adr = 18;
 	if ((strlen(nrtel) != 0) && (strlen(inmsg) != 0))
 	{
@@ -153,14 +152,12 @@ void Config(char *nrtel, char *inmsg)
 			uint8_t nr_pfonnr = 1;	//hold number of phone number on sim
 			for (byte i = 1; i < 7; i++)
 			{
-				char tmpnr[20];
-				error = gsm.GetPhoneNumber(i, tmpnr);
+				error = gsm.GetPhoneNumber(i, buffer);
 				if (error == 1)  //Find number in specified position
 					++nr_pfonnr;
 				else
 					break;
 			}
-
 			if (nr_pfonnr < 7)
 			{
 				error = gsm.WritePhoneNumber(nr_pfonnr, nrtel);
@@ -192,7 +189,6 @@ void Config(char *nrtel, char *inmsg)
 			//CfgCmd(inmsg);
 
 		}
-		//XXX de verificat
 		else if (strstr_P(inmsg, DEL) != 0)
 		{
 			byte i = 1;
@@ -204,8 +200,7 @@ void Config(char *nrtel, char *inmsg)
 				error = gsm.DelPhoneNumber(i);
 			if (error != 0)
 			{
-				sprintf_P(buffer, " %s: %d %s", PSTR("Phone number position "),
-						i, PSTR(" deleted"));
+				sprintf_P(buffer, " %s: %d %s", PSTR("Phone number position "),	i, PSTR(" deleted"));
 				//Serial.print("Phone number position ");
 				//Serial.print(i);
 				//Serial.println(" deleted");
@@ -489,15 +484,14 @@ void Comand(char *nrtel, char *inmsg)
 		if (error != 0)
 		{
 			char tmpbuffer[56];
-			sprintf_P(tmpbuffer, " %s: %1d %s", PSTR("Phone number position "),
-					i, PSTR(" deleted"));
+			sprintf_P(tmpbuffer, " %s: %1d %s", PSTR("Phone number position "),	i, PSTR(" deleted"));
 			//Serial.print("Number position ");
 			//Serial.print(i);
 			//Serial.println(" deleted");
 			Serial.println(tmpbuffer);
 
 			strcpy_P(buffer, PSTR("Sters"));
-			gsm.SendSMS(nrtel, buffer);
+			gsm.SendSMS(nrtel, tmpbuffer);
 		}
 		else
 		{
@@ -522,7 +516,7 @@ void Comand(char *nrtel, char *inmsg)
  */
 void static StareOUT(char *nrtel)
 {
-	char mesage[128];
+	char mesage[256];
 	char buffer[18];
 	//int i = 108;
 	*mesage = 0x00;
@@ -760,10 +754,9 @@ float Thermistor(int Tpin)
  */
 static void StareTMP(char *nrtel)
 {
-	char mesage[56];
+	char mesage[96];
 	char buffer[18];
-	char tmpe[26];
-	*tmpe = 0x00;
+	char tmpe[32];
 	int tmp, tmp1, tmp2;
 	*mesage = 0x00;
 
@@ -777,8 +770,8 @@ static void StareTMP(char *nrtel)
 	ReadEprom(buffer, 18 * 22);
 	if (strlen(buffer) != 0)
 	{
-		sprintf_P(mesage, " %s: %d %s", buffer, tmp, PSTR("C\r\n"));
-		//strcat(mesage, tmpe);
+		sprintf_P(tmpe, " %s: %d %s", buffer, tmp, PSTR("C\r\n"));
+		strcat(mesage, tmpe);
 	}
 
 	tmp = Thermistor(PINC1);
@@ -808,10 +801,10 @@ static void StareTMP(char *nrtel)
 void VerificIN()
 {
 	//char mesage[80];
-	char number[18];
-	char buffer[24];
+	char number[20];
+	char buffer[32];
 	int error = 0;
-	*buffer = 0x00;
+	
 	//if (digitalRead(inD1) == LOW && in1)
 	if ((PINB & (1 << PINB1)) == 0)
 	{
@@ -925,7 +918,7 @@ void VerificIN()
 		}
 		in3 = true;
 	}
-
+	/*
 	float Vo = 0;
 	Vo = 4 * analogRead(PINC4);
 	if (Vo >= 15)
@@ -939,6 +932,7 @@ void VerificIN()
 		}
 
 	}
+
 	if (Vo <= 10.8)
 	{
 		sprintf_P(buffer, " %s: %2f.2", PSTR("Alerta"), Vo);
@@ -949,7 +943,7 @@ void VerificIN()
 				gsm.SendSMS(number, buffer);
 		}
 	}
-
+*/
 }
 
 /**
@@ -959,11 +953,11 @@ void VerificIN()
  * @param : no parameters
  * @return: no return
  *
-void SetPort()
-{
-	uint8_t pin_state = 0b00000000;
-	pin_state = eeprom_read_byte((const uint8_t *) 396);
-	//Serial.println(pin_state);
-	PORTD |= pin_state;
-}
-*/
+ void SetPort()
+ {
+ uint8_t pin_state = 0b00000000;
+ pin_state = eeprom_read_byte((const uint8_t *) 396);
+ //Serial.println(pin_state);
+ PORTD |= pin_state;
+ }
+ */
