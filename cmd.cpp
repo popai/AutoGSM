@@ -142,18 +142,28 @@ int8_t CfgCmd(char *inbuffer)
 void Config(char *nrtel, char *inmsg)
 {
 	char buffer[64];
+
 	//int adr = 18;
 	if ((strlen(nrtel) != 0) && (strlen(inmsg) != 0))
 	{
-		//TODO mtetod to delete number from pozition
-
+		int error = 0;
 		//add number on authorized slot;
 		if (strstr_P(inmsg, LOGIN) != 0)
 		{
-			int8_t nr_pfonnr = 1;
+			uint8_t nr_pfonnr = 1;	//hold number of phone number on sim
+			for (byte i = 1; i < 7; i++)
+			{
+				char tmpnr[20];
+				error = gsm.GetPhoneNumber(i, tmpnr);
+				if (error == 1)  //Find number in specified position
+					++nr_pfonnr;
+				else
+					break;
+			}
+
 			if (nr_pfonnr < 7)
 			{
-				int error = gsm.WritePhoneNumber(nr_pfonnr, nrtel);
+				error = gsm.WritePhoneNumber(nr_pfonnr, nrtel);
 				if (error != 0)
 				{
 					sprintf_P(buffer,
@@ -182,12 +192,13 @@ void Config(char *nrtel, char *inmsg)
 			//CfgCmd(inmsg);
 
 		}
+		//XXX de verificat
 		else if (strstr_P(inmsg, DEL) != 0)
 		{
 			byte i = 1;
 			int error = 0;
 			for (i = 1; i < 7; i++)
-				if (gsm.ComparePhoneNumber(i, nrtel))
+				if (gsm.ComparePhoneNumber(i, nrtel) == 1)
 					break;
 			if (i < 7)
 				error = gsm.DelPhoneNumber(i);

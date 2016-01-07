@@ -263,6 +263,15 @@ environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.COM_PORT/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.COM_PORT/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.COM_PORT/value=COM3
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.C.COMPILE/delimiter=;
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.C.COMPILE/operation=replace
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.C.COMPILE/value=
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.COMPILE/delimiter=;
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.COMPILE/operation=replace
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.COMPILE/value=
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.CPP.COMPILE/delimiter=;
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.CPP.COMPILE/operation=replace
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.EXTRA.CPP.COMPILE/value=
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.PLATFORM_FILE/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.PLATFORM_FILE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.PLATFORM_FILE/value=D\:/Dev/arduino-1.5.2/hardware/arduino/avr/platform.txt
@@ -271,7 +280,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.PROCESSOR/value=
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE.SWITCH/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE.SWITCH/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE.SWITCH/value=${A.RECIPE.SIZE.PATTERN}
+environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE.SWITCH/value=${JANTJE.SIZE_COMMAND}
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE_COMMAND/delimiter=;
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE_COMMAND/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.1969499942/JANTJE.SIZE_COMMAND/value="${A.COMPILER.PATH}${A.COMPILER.SIZE.CMD}" --format\=avr --mcu\=${A.BUILD.MCU} "${A.BUILD.PATH}/${A.BUILD.PROJECT_NAME}.elf"
