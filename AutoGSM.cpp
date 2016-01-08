@@ -125,7 +125,8 @@ void loop()
 		error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
 		if (error == AT_RESP_ERR_NO_RESP)
 			PORTB |= (1 << PINB5);
-		else PORTB &= ~(1 << PINB5);
+		else
+			PORTB &= ~(1 << PINB5);
 	}
 	else
 	{
@@ -146,9 +147,8 @@ void loop()
 				char tmpnr[20];
 				for (byte i = 1; i < 7; i++)
 				{
-					error = gsm.GetPhoneNumber(i, tmpnr);
-					if (error == 1)  //Find number in specified position
-						++nr_pfonnr;
+					if (1 == gsm.GetPhoneNumber(i, tmpnr))
+						++nr_pfonnr;	//Find number in specified position
 					else
 						break;
 				}
@@ -158,10 +158,8 @@ void loop()
 					error = gsm.WritePhoneNumber(nr_pfonnr, number);
 					if (error != 0)
 					{
-						sprintf_P(buffer,
-								PSTR(
-										"Number %s writed in Phone Book position %d"),
-								number, nr_pfonnr);
+						sprintf_P(buffer, PSTR(
+								"%s writed at position %d"), number, nr_pfonnr);
 						Serial.println(buffer);
 						++nr_pfonnr;
 						strcpy_P(buffer, PSTR("Acceptat"));
@@ -170,14 +168,14 @@ void loop()
 					}
 					else
 					{
-						strcpy_P(buffer, PSTR("Writing error"));
+						strcpy_P(buffer, PSTR("ERROR"));
 						Serial.println(buffer);
 						gsm.SendSMS(number, buffer);
 					}
 				}
 				else
 				{
-					strcpy_P(buffer, PSTR("No free slot"));
+					strcpy_P(buffer, PSTR("Nu slot"));
 					gsm.SendSMS(number, buffer);
 				}
 			}
@@ -221,46 +219,19 @@ int Check_SMS()
 		//gsm.GetSMS(pos_sms_rx, number, sms_rx, 120);
 		PORTB |= (1 << PINB4);
 		error = gsm.GetAuthorizedSMS(pos_sms_rx, number, sms_rx, 122, 1, 6);
-		if (error == GETSMS_AUTH_SMS)
+		if (error == GETSMS_AUTH_SMS || error == GETSMS_NOT_AUTH_SMS)
 		//if(error > 0)
 		{
-			sprintf_P(str, PSTR("Received SMS from %s (sim position: %d):%s"),
-					number, pos_sms_rx, sms_rx);
+			sprintf_P(str, PSTR("SMS from %s: %s"), number, sms_rx);
 			Serial.println(str);
 			//Serial.println(sms_rx);
 			error = gsm.DeleteSMS(pos_sms_rx);
 			PORTB &= ~(1 << PINB4);
 			if (error == 1)
-			{
-				strcpy_P(str, PSTR("SMS deleted"));
-				Serial.println(str);
-			}
-			else
-			{
-				strcpy_P(str, PSTR("SMS not deleted"));
-				Serial.println(str);
-			}
-			return GETSMS_AUTH_SMS;
-		}
-		else //if (error == GETSMS_NOT_AUTH_SMS)
-		{
-			sprintf_P(str, PSTR("Received SMS from %s (sim position: %d):%s"),
-					number, pos_sms_rx, sms_rx);
-			Serial.println(str);
-			PORTB &= ~(1 << PINB4);
-
-			error = gsm.DeleteSMS(pos_sms_rx);
-			if (error == 1)
-			{
-				strcpy_P(str, PSTR("SMS deleted"));
-				Serial.println(str);
-			}
-			else
-			{
-				strcpy_P(str, PSTR("SMS not deleted"));
-				Serial.println(str);
-			}
-			return GETSMS_NOT_AUTH_SMS;
+				Serial.println(F("Sters"));
+				else
+				Serial.println(F("EROOR"));
+			return error;
 		}
 
 	}

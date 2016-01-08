@@ -872,7 +872,7 @@ void GSM::InitParam(byte group)
  REG_NO_RESPONSE     - GSM doesn't response
  REG_COMM_LINE_BUSY  - comm line between GSM module and Arduino is not free
  for communication
- **********************************************************/
+ **********************************************************
 byte GSM::CheckRegistration(void)
 {
 	byte status;
@@ -927,7 +927,7 @@ byte GSM::CheckRegistration(void)
 
 	return (ret_val);
 }
-
+*/
 #ifdef CALL
 /**********************************************************
  Turns on/off the speaker
@@ -1588,7 +1588,7 @@ char GSM::SendSMS(byte sim_phonebook_position, char *message_str)
  0 - SMS memory was not initialized
  1 - SMS memory was initialized
 
- **********************************************************/
+ **********************************************************
 char GSM::InitSMSMemory(void)
 {
 	char ret_val = -1;
