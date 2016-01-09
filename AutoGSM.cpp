@@ -158,8 +158,8 @@ void loop()
 					error = gsm.WritePhoneNumber(nr_pfonnr, number);
 					if (error != 0)
 					{
-						sprintf_P(buffer, PSTR(
-								"%s writed at position %d"), number, nr_pfonnr);
+						sprintf_P(buffer, PSTR("%s writed at position %d"),
+								number, nr_pfonnr);
 						Serial.println(buffer);
 						++nr_pfonnr;
 						strcpy_P(buffer, PSTR("Acceptat"));
@@ -179,7 +179,12 @@ void loop()
 					gsm.SendSMS(number, buffer);
 				}
 			}
+			else
+			{
+				strcpy_P(buffer, PSTR("NE AUTORIZAT"));
+				gsm.SendSMS(number, buffer);
 
+			}
 		}
 		*number = 0x00;
 		*sms_rx = 0x00;
@@ -212,7 +217,7 @@ int Check_SMS()
 	char str[200];
 	int pos_sms_rx = -1;  //Received SMS position
 	pos_sms_rx = gsm.IsSMSPresent(SMS_ALL);
-//Serial.println(pos_sms_rx);
+	//Serial.println(pos_sms_rx);
 	if (pos_sms_rx > 0)
 	{
 		//Read text/number/position of sms
@@ -225,11 +230,10 @@ int Check_SMS()
 			sprintf_P(str, PSTR("SMS from %s: %s"), number, sms_rx);
 			Serial.println(str);
 			//Serial.println(sms_rx);
-			error = gsm.DeleteSMS(pos_sms_rx);
 			PORTB &= ~(1 << PINB4);
-			if (error == 1)
+			if (1 == gsm.DeleteSMS(pos_sms_rx))
 				Serial.println(F("Sters"));
-				else
+			else
 				Serial.println(F("EROOR"));
 			return error;
 		}
