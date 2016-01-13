@@ -158,10 +158,12 @@ void loop()
 					error = gsm.WritePhoneNumber(nr_pfonnr, number);
 					if (error != 0)
 					{
+#ifndef DEBUG_GSMRX
 						sprintf_P(buffer, PSTR("%s writed at position %d"),
 								number, nr_pfonnr);
 						Serial.println(buffer);
-						++nr_pfonnr;
+#endif
+						//++nr_pfonnr;
 						strcpy_P(buffer, PSTR("Acceptat"));
 						gsm.SendSMS(number, buffer);
 
@@ -227,9 +229,11 @@ int Check_SMS()
 		if (error == GETSMS_AUTH_SMS || error == GETSMS_NOT_AUTH_SMS)
 		//if(error > 0)
 		{
+#ifndef DEBUG_GSMRX
 			sprintf_P(str, PSTR("SMS from %s: %s"), number, sms_rx);
 			Serial.println(str);
 			//Serial.println(sms_rx);
+#endif
 			PORTB &= ~(1 << PINB4);
 			if (1 == gsm.DeleteSMS(pos_sms_rx))
 				Serial.println(F("Sters"));

@@ -27,7 +27,7 @@
 // which causes that SMS are not send)
 // by this way it is possible to develop program without paying for the SMSs 
 //#define DEBUG_SMS_ENABLED
-
+#define DEBUG_GSMRX			1
 
 // pins definition
 #define GSM_ON                8 // connect GSM Module turn ON to pin 77

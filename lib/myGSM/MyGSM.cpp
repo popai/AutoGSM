@@ -321,7 +321,7 @@ byte GSM::IsRxFinished(void)
 #ifdef DEBUG_GSMRX
 	if (ret_val == RX_FINISHED)
 	{
-		DebugPrint("DEBUG: Received string\r\n", 0);
+		//DebugPrint("DEBUG: Received string\r\n", 0);
 		for (int i=0; i<comm_buf_len; i++)
 		{
 			Serial.print(byte(comm_buf[i]));
@@ -535,13 +535,7 @@ void GSM::TurnOn(long baud_rate)
 {
 	SetCommLineStatus(CLS_ATCMD);
 	mySerial.begin(baud_rate);
-	/*
-	// generate turn on pulse
-	digitalWrite(GSM_ON, HIGH);
-	delay(1200);
-	digitalWrite(GSM_ON, LOW);
-	delay(5000);
-
+	delay(1000);
 #ifdef DEBUG_PRINT
 	// parameter 0 - because module is off so it is not necessary
 	// to send finish AT<CR> here
@@ -574,6 +568,7 @@ void GSM::TurnOn(long baud_rate)
 	 DebugPrint("DEBUG: GSM module is on\r\n", 0);
 	 #endif
 	 }
+	 /*
 	 if (AT_RESP_ERR_DIF_RESP == SendATCmdWaitResp("AT", 500, 100, "OK", 5))
 	 {		//check OK
 
@@ -713,7 +708,7 @@ void GSM::TurnOn(long baud_rate)
 	}
 */	delay(5000);
 	delay(5000);
-	delay(5000);
+	//delay(5000);
 	SetCommLineStatus(CLS_FREE);
 
 	// send collection of first initialization parameters for the GSM module
