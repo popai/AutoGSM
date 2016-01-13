@@ -324,7 +324,7 @@ byte GSM::IsRxFinished(void)
 		//DebugPrint("DEBUG: Received string\r\n", 0);
 		for (int i=0; i<comm_buf_len; i++)
 		{
-			Serial.print(byte(comm_buf[i]));
+			Serial.print(char(comm_buf[i]));
 		}
 	}
 #endif

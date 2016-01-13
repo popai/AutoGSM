@@ -198,7 +198,9 @@ void Config(char *nrtel, char *inmsg)
 			DellEprom();
 		else
 		{
-			CfgCmd(inmsg);
+			if(CfgCmd(inmsg))
+				gsm.SendSMS(nrtel, "OK");
+			else gsm.SendSMS(nrtel, "EROR");
 		}
 	}
 }
