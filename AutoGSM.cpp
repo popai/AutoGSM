@@ -60,7 +60,7 @@ void setup()
 	}
 	else
 	{
-		Serial.println("GSM init error");
+		Serial.println(F("GSM init error"));
 		PORTB |= (1 << PINB5);
 	}
 

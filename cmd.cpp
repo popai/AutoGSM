@@ -878,7 +878,7 @@ void VerificIN()
 	int8_t Vo = 0;
 	Vo = (20 * analogRead(PINC4) / 1023);
 	sprintf(buffer, " Alerta: U = %d", Vo);
-	if ((Vo >= 15 || Vo <= 10.8) && sms_sent)
+	if ((Vo >= 15 || Vo <= 11) && sms_sent)
 	{
 
 		for (byte i = 1; i < 7; i++)
