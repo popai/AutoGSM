@@ -198,9 +198,10 @@ void Config(char *nrtel, char *inmsg)
 			DellEprom();
 		else
 		{
-			if(CfgCmd(inmsg))
+			if (CfgCmd(inmsg))
 				gsm.SendSMS(nrtel, "OK");
-			else gsm.SendSMS(nrtel, "EROR");
+			else
+				gsm.SendSMS(nrtel, "EROR");
 		}
 	}
 }
@@ -878,14 +879,17 @@ void VerificIN()
 	int8_t Vo = 0;
 	Vo = (20 * analogRead(PINC4) / 1023);
 	sprintf(buffer, " Alerta: U = %d", Vo);
-	if ((Vo >= 15 || Vo <= 10.8) && sms_sent)
-	{
+	if (sms_sent)
+		if (Vo >= 15 || Vo <= 10.8)
+		{
 
-		for (byte i = 1; i < 7; i++)
-			if (gsm.GetPhoneNumber(i, number) == 1) //Find number in specified position
-				gsm.SendSMS(number, buffer);
-		sms_sent = false;
-	}
+			for (byte i = 1; i < 7; i++)
+				if (gsm.GetPhoneNumber(i, number) == 1) //Find number in specified position
+					gsm.SendSMS(number, buffer);
+			sms_sent = false;
+		}
+		else
+			sms_sent = true;
 }
 
 /**

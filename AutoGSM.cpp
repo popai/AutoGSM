@@ -181,12 +181,14 @@ void loop()
 					gsm.SendSMS(number, buffer);
 				}
 			}
-			else
-			{
-				strcpy_P(buffer, PSTR("NE AUTORIZAT"));
-				gsm.SendSMS(number, buffer);
+			/*
+			 else
+			 {
+			 strcpy_P(buffer, PSTR("NE AUTORIZAT"));
+			 gsm.SendSMS(number, buffer);
 
-			}
+			 }
+			 */
 		}
 		*number = 0x00;
 		*sms_rx = 0x00;
