@@ -7,6 +7,7 @@
 #include "MyGSM.h"
 #include "Arduino.h"
 #include "SoftwareSerial.h"
+#include <avr/wdt.h>
 
 extern "C"
 {
@@ -1468,7 +1469,8 @@ char GSM::SendSMS(char *number_str, char *message_str)
 {
 	char ret_val = -1;
 	byte i;
-
+	//XXX feeding the dog
+	wdt_reset();
 	digitalWrite(LedSMS, HIGH);
 
 	if (CLS_FREE != GetCommLineStatus())

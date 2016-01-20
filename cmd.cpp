@@ -876,11 +876,12 @@ void VerificIN()
 		in3 = true;
 	}
 
-	int8_t Vo = 0;
+	int Vo = 0;
 	Vo = (20 * analogRead(PINC4) / 1023);
 	sprintf(buffer, " Alerta: U = %d", Vo);
-	if (sms_sent)
-		if (Vo >= 15 || Vo <= 10.8)
+	if (Vo >= 15 || Vo <= 11)
+	{
+		if (sms_sent)
 		{
 
 			for (byte i = 1; i < 7; i++)
@@ -888,8 +889,9 @@ void VerificIN()
 					gsm.SendSMS(number, buffer);
 			sms_sent = false;
 		}
-		else
-			sms_sent = true;
+	}
+	else
+		sms_sent = true;
 }
 
 /**

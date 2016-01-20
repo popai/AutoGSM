@@ -8,6 +8,7 @@
 #include "AutoGSM.h"
 #include "lib/myGSM/MyGSM.h"
 #include <avr/eeprom.h>
+#include <avr/wdt.h>
 
 #include "cmd.h"
 #include "pinDef.h"
@@ -18,7 +19,7 @@ char sms_rx[122];   //Received text SMS
 char number[20];	//sender phone number
 //uint8_t nr_pfonnr = 0;	//hold number of phone number on sim
 
-bool config = false, delEEPROM = false;	//define state of controller
+bool config = false; //, delEEPROM = false;	//define state of controller
 
 int Check_SMS();  //Check if there is SMS
 
@@ -31,6 +32,7 @@ int Check_SMS();  //Check if there is SMS
 void setup()
 {
 // Add your initialization code here
+	wdt_disable();
 	pinSetUp();			//set pins
 
 	Serial.begin(9600);	//start hardwre serial
@@ -49,9 +51,9 @@ void setup()
 	}
 
 	//Check status
-	int error = 0;			//error from function
-	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-	if (error == AT_RESP_OK)
+	//int error = 0;			//error from function
+	//error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
+	if (gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5) == AT_RESP_OK)
 	{
 		gsm.InitParam(PARAM_SET_1);		//configure the module
 		gsm.Echo(0);		//enable/disable AT echo
@@ -66,11 +68,9 @@ void setup()
 
 	uint8_t nr_pfonnr = 0;	//hold number of phone number on sim
 	for (byte i = 1; i < 7; i++)
-	{
-		error = gsm.GetPhoneNumber(i, number);
-		if (error == 1)  //Find number in specified position
+		if (gsm.GetPhoneNumber(i, number) == 1)  //Find number in specified position
 			++nr_pfonnr;
-	}
+
 	Serial.println(nr_pfonnr);
 
 	//if (nr_pfonnr == 0)
@@ -79,16 +79,15 @@ void setup()
 //if (digitalRead(jp3) == LOW)
 	if ((PINC & (1 << PINC5)) == 0)
 		config = true;
+	wdt_enable(WDTO_8S);
 }
 
 void loop()
 {
 // The loop function is called in an endless loop
 	int id = 0;
-	int error = 0;			//error from function
+	//int error = 0;			//error from function
 	byte i = 0;
-	if (delEEPROM)
-		return;
 
 	if (config)
 	{
@@ -122,11 +121,13 @@ void loop()
 			*sms_rx = 0x00;
 			id = 0;
 		}
-		error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-		if (error == AT_RESP_ERR_NO_RESP)
-			PORTB |= (1 << PINB5);
-		else
-			PORTB &= ~(1 << PINB5);
+		//test SIM900 module up
+		if (AT_RESP_OK == gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5))
+			PORTB &= ~(1 << PINB5);			//ERROR LED off
+		else PORTB |= (1 << PINB5);			//ERROR LED on
+
+		//XXX feeding the dog
+		wdt_reset();
 	}
 	else
 	{
@@ -155,8 +156,7 @@ void loop()
 
 				if (nr_pfonnr < 7) //max 6 number
 				{
-					error = gsm.WritePhoneNumber(nr_pfonnr, number);
-					if (error != 0)
+					if (gsm.WritePhoneNumber(nr_pfonnr, number) != 0)
 					{
 #ifndef DEBUG_GSMRX
 						sprintf_P(buffer, PSTR("%s writed at position %d"),
@@ -181,28 +181,19 @@ void loop()
 					gsm.SendSMS(number, buffer);
 				}
 			}
-			/*
-			 else
-			 {
-			 strcpy_P(buffer, PSTR("NE AUTORIZAT"));
-			 gsm.SendSMS(number, buffer);
-
-			 }
-			 */
 		}
 		*number = 0x00;
 		*sms_rx = 0x00;
 		id = 0;
 
 	}
-	//chip module up
-	//Serial.print("test\n");
-	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 2);
-	if (error == AT_RESP_ERR_NO_RESP)
-		PORTB |= (1 << PINB5);
-	error = gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5);
-	if (error == AT_RESP_OK)
-		PORTB &= ~(1 << PINB5);
+	//XXX feeding the dog
+	wdt_reset();
+
+	//test SIM900 module up
+	if (AT_RESP_OK == gsm.SendATCmdWaitResp("AT", 500, 100, "OK", 5))
+		PORTB &= ~(1 << PINB5);			//ERROR LED off
+	else PORTB |= (1 << PINB5);			//ERROR LED on
 
 	delay(50);
 }
