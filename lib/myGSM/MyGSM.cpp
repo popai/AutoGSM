@@ -434,6 +434,8 @@ byte GSM::WaitResp(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
 	// wait until response is not finished
 	do
 	{
+		//XXX feeding the dog
+		wdt_reset();
 		status = IsRxFinished();
 	} while (status == RX_NOT_FINISHED);
 
