@@ -434,8 +434,6 @@ byte GSM::WaitResp(uint16_t start_comm_tmout, uint16_t max_interchar_tmout,
 	// wait until response is not finished
 	do
 	{
-		//XXX feeding the dog
-		wdt_reset();
 		status = IsRxFinished();
 	} while (status == RX_NOT_FINISHED);
 
@@ -1474,8 +1472,6 @@ char GSM::SendSMS(char *number_str, char *message_str)
 {
 	char ret_val = -1;
 	byte i;
-	//XXX feeding the dog
-	wdt_reset();
 	digitalWrite(LedSMS, HIGH);
 
 	if (CLS_FREE != GetCommLineStatus())
@@ -1662,9 +1658,6 @@ char GSM::InitSMSMemory(void)
  **********************************************************/
 char GSM::IsSMSPresent(byte required_status)
 {
-	//XXX feeding the dog
-	wdt_reset();
-
 	char ret_val = -1;
 	char *p_char;
 	byte status;
@@ -1794,9 +1787,6 @@ char GSM::IsSMSPresent(byte required_status)
 char GSM::GetSMS(byte position, char *phone_number, char *SMS_text,
 		byte max_SMS_len)
 {
-	//XXX feeding the dog
-	wdt_reset();
-
 	char ret_val = -1;
 	char *p_char;
 	char *p_char1;
@@ -2074,9 +2064,6 @@ char GSM::GetAuthorizedSMS(byte position, char *phone_number, char *SMS_text,
 char GSM::DeleteSMS(byte position)
 {
 
-	//XXX feeding the dog
-	wdt_reset();
-
 	char ret_val = -1;
 
 	if (position == 0)
@@ -2157,9 +2144,6 @@ char GSM::DeleteSMS(byte position)
  **********************************************************/
 char GSM::GetPhoneNumber(byte position, char *phone_number)
 {
-	//XXX feeding the dog
-	wdt_reset();
-
 	byte ret_val = -1;
 
 	char *p_char;
@@ -2242,9 +2226,6 @@ char GSM::GetPhoneNumber(byte position, char *phone_number)
 char GSM::WritePhoneNumber(byte position, char *phone_number)
 {
 
-	//XXX feeding the dog
-	wdt_reset();
-
 	char ret_val = -1;
 
 	if (position == 0)
@@ -2304,8 +2285,6 @@ char GSM::WritePhoneNumber(byte position, char *phone_number)
  **********************************************************/
 char GSM::DelPhoneNumber(byte position)
 {
-	//XXX feeding the dog
-	wdt_reset();
 
 	char ret_val = -1;
 
